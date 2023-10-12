@@ -88,6 +88,8 @@ plot(bei)
 plot(densitymap)
 plot(elev)
 
+####################Lecture 05###################
+
 
 
 
