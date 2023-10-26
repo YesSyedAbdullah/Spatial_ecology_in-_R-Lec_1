@@ -31,7 +31,7 @@ b3 <- im.import("sentinel.dolomites.b3.tif")
 plot(b3, col-cl)
 
 cl <- colorRampPalette(c("darkgrey", "grey", "lightgrey")) (100)
-plot(b3, col=col)
+plot(b3, col=cl)
 
 
 
