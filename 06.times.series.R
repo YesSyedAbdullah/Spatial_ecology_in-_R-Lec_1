@@ -39,3 +39,24 @@ plot(g2015, cl=clg)
 stackg <- c(g2000, g2005, g2010, g2015)
 plot(stackg, col=clg)
 
+#exercise: make the differnece b/w the first and the final elements of the stack
+dif1 =g2000[[1]]-g2015[[1]]
+plot(dif1)
+
+or
+
+dif2<- stackg[[1]]-stackg[[4]]
+plot(dif2, col=cldif)
+
+#going to add RGB in 2000, 2005 and 2015,
+#2000 for red
+#2005 for green
+#2015 for blue 
+
+#if plot have high red tou temp zyda in 2000, if green clr is more so 2005 m temp zyda, or agr blue color zyda it means temp zyda hai 2015 m...
+#exercise: making RGB plot using different years.
+
+im.plotRGB(stackg, r=1, g=2, b=3)
+
+
+
