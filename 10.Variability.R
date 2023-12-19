@@ -18,4 +18,10 @@ nir<- sent[[1]]
 plot(nir)
 
 #moving window
-focal
+#focal
+
+sd3<- focal(nir, matrix(1/9, 3, 3), fun=sd) #3,3 is the describation of 3x3 (qk matrix sqaure h)
+plot(sd3)
+
+viridisc<- colorRampPalette(viridis(7)) (255)
+plot(sd3, col=viridisc)
