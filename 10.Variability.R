@@ -25,3 +25,26 @@ plot(sd3)
 
 viridisc<- colorRampPalette(viridis(7)) (255)
 plot(sd3, col=viridisc)
+
+#####################################21-12-2023###########################################
+
+#Exercise: calculate the variability of 7x7 in a moving window
+sd7 <- focal(nir, matrix(1/49, 7, 7), fun=sd)
+plot(sd7)
+
+viridisc<- colorRampPalette(viridis(7)) (255)
+plot(sd7, col=viridisc)
+
+#exercise 2: plot via par(mfrow()) the 3x3 and 7x7 standard deviation
+par(mfrow=c(1,2))
+plot(sd3, col=viridisc)
+plot(sd7, col=viridisc)
+
+#original image plus 7x7 std. deviation
+im.plotRGB(sent, r=2, g=1, b=3)
+plot(sd7, col=viridisc)
+
+#high variability so more species
+
+###############multivariate analysis###########
+
