@@ -48,3 +48,6 @@ plot(sd7, col=viridisc)
 
 ###############multivariate analysis###########
 
+#principle component1: where we have high variability in the graph: (highest range) approx 90%
+#principle component2 is the axis: perpendicular to above line in the graph with less range (lowest range approx, 10%)
+
