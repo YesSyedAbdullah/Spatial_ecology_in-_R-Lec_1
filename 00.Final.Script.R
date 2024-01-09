@@ -1,4 +1,4 @@
-#fubak script including all the different scripts during lectures
+#Final script including all the different scripts during lectures
 #------------------------------------------------------------------
 
 #summary:
