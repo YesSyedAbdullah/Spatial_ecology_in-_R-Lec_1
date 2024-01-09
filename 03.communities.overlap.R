@@ -1,5 +1,7 @@
 #relation among species in time
 
+#how different species overlap each other
+
 library(overlap)
 
 # data
