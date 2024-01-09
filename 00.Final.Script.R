@@ -11,9 +11,11 @@
 #05. Spectral Indices
 #06. Times Series
 #07. External Data
-#08.Copernicus Data temp
-#09.
-#10.
+#08. Copernicus Data 
+#09. Classification
+#10. Variability
+#11. Principal Component Analysis
+
 #------------------------------------------------------------------
 #01 Beginning
 # Here I can write anything I want! 42 is the meaning of life univcerse and all!
@@ -639,13 +641,291 @@ plotRGB(mato, r=3, g=2, b=1)
 
 #cyrophere for ice data.#login kro phly 
 #------------------------------------------------------------------
+#08. Copernicus Data
+
+# https://land.copernicus.vgt.vito.be/PDF/portal/Application.html
+
+library(ncdf4)
+library(terra)
+
+# install.packages("name_of_the_package_here")
+
+setwd("~/Downloads") # in W*****s \ means /
+
+soilm2023 <- rast("c_gls_SSM1km_202311250000_CEURO_S1CSAR_V1.2.1.nc")
+plot(soilm2023)
+
+# there are two elements, let's use the first one!
+plot(soilm2023[[1]])
+
+cl <- colorRampPalette(c("red", "orange", "yellow")) (100)
+plot(soilm2023[[1]], col=cl)
+
+ext <- c(22, 26, 55, 57) # minlong, maxlong, minlat, maxlat
+soilm2023c <- crop(soilm2023, ext)
+
+plot(soilm2023c[[1]], col=cl)
+
+# new image
+soilm2023_24 <- rast("c_gls_SSM1km_202311240000_CEURO_S1CSAR_V1.2.1.nc")
+plot(soilm2023_24)
+soilm2023_24c <- crop(soilm2023_24, ext)
+plot(soilm2023_24c[[1]], col=cl)
+
+#------------------------------------------------------------------
+#09. Classification
+
+# Procedure for classifying remote sensing data
+
+library(terra)
+library(imageRy)
+library(ggplot2)
+library(patchwork)
+
+im.list()
+
+sun <- im.import("Solar_Orbiter_s_first_views_of_the_Sun_pillars.jpg")
+
+sunc <- im.classify(sun)
+
+plotRGB(sun, 1, 2, 3)
+plot(sunc)
+
+#-----
+
+im.list()
+
+# Import the data
+m1992 <- im.import("matogrosso_l5_1992219_lrg.jpg")
+m2006 <- im.import("matogrosso_ast_2006209_lrg.jpg")
+
+# Classification of 1992
+m1992c <- im.classify(m1992, num_clusters=2)
+
+# classes of 1992:
+# class 1: agricultural areas
+# class 2: forest
+
+#2006
+
+m2006c <- im.classify(m2006, num_clusters=2)
+
+# classes of 2006:
+# class 1: agricultural areas
+# class 2: forest
+
+# final estimates
+# 1992
+freq1992 <- freq(m1992c)
+freq1992
+
+# 2006
+freq2006 <- freq(m2006c)
+freq2006
+
+# percentages
+tot1992 = ncell(m1992)
+perc1992 = freq1992 * 100 / tot1992
+perc1992
+
+# 1992: forest = 83.08%, agriculture = 16.91%
+
+tot2006 = ncell(m2006)
+perc2006 = freq2006 * 100 / tot2006
+perc2006
+
+# 2006: forest = 45.31%, agriculture = 54.69%
+
+# building the output table
+cover <- c("forest", "agriculture") 
+perc1992 <- c(83.08, 16.91)
+perc2006 <- c(45.31, 54.69)
+
+# final table
+p <- data.frame(cover, perc1992, perc2006)
+p
+
+# final plot
+p1 <- ggplot(p, aes(x=cover, y=perc1992, color=cover)) + geom_bar(stat="identity", fill="white"))
+p2 <- ggplot(p, aes(x=cover, y=perc2006, color=cover)) + geom_bar(stat="identity", fill="white"))
+p1+p2
+
+# final plot - rescaled
+p1 <- ggplot(p, aes(x=cover, y=perc1992, color=cover)) + geom_bar(stat="identity", fill="white") + ylim(c(0,100))
+p2 <- ggplot(p, aes(x=cover, y=perc2006, color=cover)) + geom_bar(stat="identity", fill="white") + ylim(c(0,100))
+p1+p2
+
+#########################################################################################################################################
+# Classifying satellite images and estimate the amount of change
+
+library(terra)
+library(imageRy)
+library(ggplot2)
+library(patchwork)
+
+im.list()
+
+# https://www.esa.int/ESA_Multimedia/Images/2020/07/Solar_Orbiter_s_first_views_of_the_Sun6
+# additional images: https://webbtelescope.org/contents/media/videos/1102-Video?Tag=Nebulas&page=1
+
+sun <- im.import("Solar_Orbiter_s_first_views_of_the_Sun_pillars.jpg")
+
+sunc <- im.classify(sun, num_clusters=3)
+
+# classify satellite data
+
+im.list()
+
+m1992 <- im.import("matogrosso_l5_1992219_lrg.jpg")
+m2006 <- im.import("matogrosso_ast_2006209_lrg.jpg")
+  
+m1992c <- im.classify(m1992, num_clusters=2)                    
+plot(m1992c)
+# classes: forest=1; human=2
+
+m2006c <- im.classify(m2006, num_clusters=2)
+plot(m2006c)
+# classes: forest=1; human=2
+
+par(mfrow=c(1,2))
+plot(m1992c[[1]])
+plot(m2006c[[1]])
+
+f1992 <- freq(m1992c)
+f1992
+tot1992 <- ncell(m1992c)
+# percentage
+p1992 <- f1992 * 100 / tot1992 
+p1992
+# forest: 83%; human: 17%
+
+# percentage of 2006
+f2006 <- freq(m2006c)
+f2006
+tot2006 <- ncell(m2006c)
+# percentage
+p2006 <- f2006 * 100 / tot2006 
+p2006
+# forest: 45%; human: 55%
+
+# building the final table
+class <- c("forest", "human")
+y1992 <- c(83, 17)
+y2006 <- c(45, 55) 
+
+tabout <- data.frame(class, y1992, y2006)
+tabout #for table making
+
+# final output
+p1 <- ggplot(tabout, aes(x=class, y=y1992, color=class)) + geom_bar(stat="identity", fill="white")
+p2 <- ggplot(tabout, aes(x=class, y=y2006, color=class)) + geom_bar(stat="identity", fill="white")
+p1 + p2 #for comparing 2 plot in one page
+#but issue is that different scales h dono graph m.. is ko same kro
+#tou is k lye limit lgaty (ylim) see next step
+
+# final output, rescaled
+p1 <- ggplot(tabout, aes(x=class, y=y1992, color=class)) + geom_bar(stat="identity", fill="white") + ylim(c(0,100))
+p2 <- ggplot(tabout, aes(x=class, y=y2006, color=class)) + geom_bar(stat="identity", fill="white") + ylim(c(0,100))
+p1 + p2
+#start from satelite images, to check the forest lost in 2 dates (1992 and 2006) so is k lye itni chizen ki.
+#latex to solve problem in writing and help to maintain the mind safety.
+
+#------------------------------------------------------------------
+#10. Variability
+
+#measurment of R studio based variability 
+library(imageRy)
+library(terra)
+library(viridis)
 
 
+im.list()
 
+sent<- im.import("sentinel.png")
 
+#band1 =NIR
+#band2 = red
+#band3= green
+im.plotRGB(sent, r=1, g=2, b=3)
+im.plotRGB(sent, r=2, g=1, b=3)
 
+nir<- sent[[1]]
+plot(nir)
 
+#moving window
+#focal
 
+sd3<- focal(nir, matrix(1/9, 3, 3), fun=sd) #3,3 is the describation of 3x3 (#because matrix is sqaure)
+plot(sd3)
 
+viridisc<- colorRampPalette(viridis(7)) (255)
+plot(sd3, col=viridisc)
 
+#####################################21-12-2023###########################################
 
+#Exercise: calculate the variability of 7x7 in a moving window
+sd7 <- focal(nir, matrix(1/49, 7, 7), fun=sd)
+plot(sd7)
+
+viridisc<- colorRampPalette(viridis(7)) (255)
+plot(sd7, col=viridisc)
+
+#exercise 2: plot via par(mfrow()) the 3x3 and 7x7 standard deviation
+par(mfrow=c(1,2))
+plot(sd3, col=viridisc)
+plot(sd7, col=viridisc)
+
+#original image plus 7x7 std. deviation
+im.plotRGB(sent, r=2, g=1, b=3)
+plot(sd7, col=viridisc)
+
+#high variability so more species
+
+###############multivariate analysis###########
+
+#principle component1: where we have high variability in the graph: (highest range) approx 90%
+#principle component2 is the axis: perpendicular to above line in the graph with less range (lowest range approx, 10%)
+
+#------------------------------------------------------------------
+#11. Principal Component Analysis
+
+library(image)
+library(terra)
+library(viridis)
+
+im.list()
+
+sent<- im.import("sentinel.png")
+pairs(sent)
+
+#perform PCA on sent.
+sentpc<- im.pca(sent)
+sentpc
+pc1<- sentpc$PC1
+plot(pc1)
+
+viridisc <-colorRampPalette(viridis(7)) (255)
+plot(pc1, col=viridisc)
+
+#calculating standard deviation on top of PC1
+pc1sd3<- focal(pc1, matrix(1/9, 3, 3), fun=sd)
+plot(pc1sd3, col= viridisc)
+
+#calculating standard deviation on top of PC1 (7x7)
+pc1sd7<- focal(pc1, matrix(1/49, 7, 7), fun=sd)
+plot(pc1sd7, col= viridisc)
+
+par(mfrow=c(2,3))
+im.plotRGB(sent, 2, 1, 3)
+#sd from the variabilityscript
+plot(sd3, col= viridisc)
+plot(sd7, col= viridisc)
+plot(pc1sd3, col= viridisc)
+plot(pc1sd3, col= viridisc)
+
+#stack all the standard deviation layers
+sdstack <- c(sd3, sd7, pc1sd3, pc1sd7)
+plot(sdstack, col=viridisc)
+names(sdstack) <- c("sd3", "sd7", "pc1sd3", "pc1sd7")
+plot(sdstack, col=viridisc)
+#------------------------------------------------------------------
